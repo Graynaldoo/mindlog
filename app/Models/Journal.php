@@ -14,6 +14,9 @@ class Journal extends Model
         'mood_id',
         'title',
         'content',
+        'daily_activities',
+        'productivity_score',
+        'activity_minutes',
         'journal_date',
         'is_private',
     ];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApiKey;
 use App\Models\Role;
 use App\Models\Streak;
 use App\Models\User;
@@ -51,6 +52,11 @@ class AuthController extends Controller
         ]);
 
         Streak::firstOrCreate(['user_id' => $user->id]);
+        ApiKey::create([
+            'user_id' => $user->id,
+            'name' => 'Default API Key',
+            'key_hash' => hash('sha256', $user->api_key),
+        ]);
 
         $token = JWTAuth::fromUser($user);
 
@@ -162,6 +168,11 @@ class AuthController extends Controller
         $user = auth()->user();
         $user->api_key = User::generateApiKey();
         $user->save();
+        ApiKey::create([
+            'user_id' => $user->id,
+            'name' => 'Regenerated API Key',
+            'key_hash' => hash('sha256', $user->api_key),
+        ]);
 
         return response()->json([
             'success' => true,

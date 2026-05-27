@@ -3,7 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Article;
+use App\Models\Activity;
+use App\Models\ApiKey;
 use App\Models\Category;
+use App\Models\EducationContent;
 use App\Models\Journal;
 use App\Models\Mood;
 use App\Models\Role;
@@ -57,6 +60,10 @@ class EduSmartSeeder extends Seeder
 
         foreach ([$admin, $educator, $learner] as $user) {
             Streak::firstOrCreate(['user_id' => $user->id]);
+            ApiKey::firstOrCreate(
+                ['user_id' => $user->id, 'name' => 'Default API Key'],
+                ['key_hash' => hash('sha256', $user->api_key)]
+            );
         }
 
         $categories = [
@@ -112,6 +119,21 @@ class EduSmartSeeder extends Seeder
                     'published_at' => now()->subDays(7),
                 ]
             );
+
+            EducationContent::updateOrCreate(
+                ['slug' => Str::slug($articleData['title'])],
+                [
+                    'user_id' => $educator->id,
+                    'title' => $articleData['title'],
+                    'type' => 'article',
+                    'excerpt' => $articleData['excerpt'],
+                    'content' => $articleData['content'],
+                    'status' => 'published',
+                    'read_count' => 12,
+                    'estimated_minutes' => $articleData['estimated_minutes'],
+                    'published_at' => now()->subDays(7),
+                ]
+            );
         }
 
         $mood = Mood::where('score', 4)->first();
@@ -122,7 +144,20 @@ class EduSmartSeeder extends Seeder
                     'mood_id' => $mood?->id,
                     'title' => 'Catatan Belajar Hari ' . ($i + 1),
                     'content' => 'Hari ini saya belajar literasi digital dan mencatat satu kebiasaan kecil untuk ditingkatkan.',
+                    'daily_activities' => 'Membaca artikel, membuat rangkuman, dan latihan verifikasi informasi.',
+                    'productivity_score' => min(100, 62 + ($i * 2)),
+                    'activity_minutes' => 30 + ($i * 3),
                     'is_private' => true,
+                ]
+            );
+
+            Activity::updateOrCreate(
+                ['user_id' => $learner->id, 'activity_date' => now()->subDays($i)->toDateString(), 'title' => 'Belajar Literasi Digital'],
+                [
+                    'description' => 'Aktivitas belajar berbasis TIK yang dicatat untuk mengukur dampak.',
+                    'category' => 'learning',
+                    'duration_minutes' => 30 + ($i * 3),
+                    'productivity_score' => min(100, 62 + ($i * 2)),
                 ]
             );
 

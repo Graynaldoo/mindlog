@@ -36,6 +36,9 @@ class JournalController extends Controller
             'mood_id' => 'required|exists:moods,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'daily_activities' => 'nullable|string',
+            'productivity_score' => 'nullable|integer|min:0|max:100',
+            'activity_minutes' => 'nullable|integer|min:0|max:1440',
             'journal_date' => 'required|date',
             'is_private' => 'boolean',
         ]);
@@ -75,6 +78,9 @@ class JournalController extends Controller
             'mood_id' => 'required|exists:moods,id',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'daily_activities' => 'nullable|string',
+            'productivity_score' => 'nullable|integer|min:0|max:100',
+            'activity_minutes' => 'nullable|integer|min:0|max:1440',
             'journal_date' => 'required|date',
         ]);
 

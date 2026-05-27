@@ -1,109 +1,135 @@
 {
   "info": {
-    "name": "MindLog EduSmart API",
-    "description": "Collection untuk Auth, Journal, Article, Category, Statistics, JWT, Basic Auth, dan API Key.",
+    "name": "MindLog Smart Education API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "token", "value": "" },
+    { "key": "api_key", "value": "" }
+  ],
   "item": [
     {
-      "name": "AUTH",
-      "item": [
-        {
-          "name": "Register",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Warga Baru\",\n  \"email\": \"warga@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}" },
-            "url": { "raw": "{{base_url}}/api/register", "host": ["{{base_url}}"], "path": ["api", "register"] }
-          }
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json();",
-                  "if (json.data && json.data.access_token) pm.environment.set('token', json.data.access_token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}" },
-            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] }
-          }
-        },
-        {
-          "name": "Profile",
-          "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/profile", "host": ["{{base_url}}"], "path": ["api", "profile"] } }
-        },
-        {
-          "name": "Logout",
-          "request": { "method": "POST", "url": { "raw": "{{base_url}}/api/logout", "host": ["{{base_url}}"], "path": ["api", "logout"] } }
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Warga Belajar\",\n  \"email\": \"warga@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
         }
-      ]
+      }
     },
     {
-      "name": "JOURNAL",
-      "item": [
-        { "name": "List Journals", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/journals", "host": ["{{base_url}}"], "path": ["api", "journals"] } } },
-        {
-          "name": "Create Journal",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"mood_id\": 4,\n  \"title\": \"Belajar Literasi Digital\",\n  \"content\": \"Saya membaca artikel tentang keamanan digital.\",\n  \"journal_date\": \"2026-05-27\",\n  \"is_private\": true\n}" },
-            "url": { "raw": "{{base_url}}/api/journals", "host": ["{{base_url}}"], "path": ["api", "journals"] }
-          }
-        },
-        { "name": "Show Journal", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/journals/{{journal_id}}", "host": ["{{base_url}}"], "path": ["api", "journals", "{{journal_id}}"] } } },
-        {
-          "name": "Update Journal",
-          "request": {
-            "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Update Jurnal Belajar\"\n}" },
-            "url": { "raw": "{{base_url}}/api/journals/{{journal_id}}", "host": ["{{base_url}}"], "path": ["api", "journals", "{{journal_id}}"] }
-          }
-        },
-        { "name": "Delete Journal", "request": { "method": "DELETE", "url": { "raw": "{{base_url}}/api/journals/{{journal_id}}", "host": ["{{base_url}}"], "path": ["api", "journals", "{{journal_id}}"] } } }
-      ]
-    },
-    {
-      "name": "ARTICLE CATEGORY STATISTICS",
-      "item": [
-        { "name": "List Articles", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/articles", "host": ["{{base_url}}"], "path": ["api", "articles"] } } },
-        { "name": "Show Article", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/articles/{{article_id}}", "host": ["{{base_url}}"], "path": ["api", "articles", "{{article_id}}"] } } },
-        { "name": "List Categories", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/categories", "host": ["{{base_url}}"], "path": ["api", "categories"] } } },
-        { "name": "User Statistics", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/statistics", "host": ["{{base_url}}"], "path": ["api", "statistics"] } } }
-      ]
-    },
-    {
-      "name": "AUTHORIZATION EXAMPLES",
-      "item": [
-        {
-          "name": "Basic Auth - Statistics",
-          "request": {
-            "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{email}}", "type": "string" }, { "key": "password", "value": "{{password}}", "type": "string" }] },
-            "method": "GET",
-            "url": { "raw": "{{base_url}}/api/basic/statistics", "host": ["{{base_url}}"], "path": ["api", "basic", "statistics"] }
-          }
-        },
-        {
-          "name": "API Key - Articles",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "X-API-Key", "value": "{{api_key}}" }],
-            "url": { "raw": "{{base_url}}/api/key/articles", "host": ["{{base_url}}"], "path": ["api", "key", "articles"] }
-          }
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{base_url}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@mindlog.test\",\n  \"password\": \"password\"\n}"
         }
-      ]
+      }
+    },
+    {
+      "name": "Auth - Profile",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/profile"
+      }
+    },
+    {
+      "name": "Journal - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/journals",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mood_id\": 4,\n  \"title\": \"Belajar Literasi Digital\",\n  \"content\": \"Saya membaca artikel keamanan digital.\",\n  \"daily_activities\": \"Membaca artikel, membuat rangkuman, latihan verifikasi informasi.\",\n  \"productivity_score\": 85,\n  \"activity_minutes\": 45,\n  \"journal_date\": \"2026-05-27\",\n  \"is_private\": true\n}"
+        }
+      }
+    },
+    {
+      "name": "Journal - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/journals"
+      }
+    },
+    {
+      "name": "Education - List",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/education"
+      }
+    },
+    {
+      "name": "Education - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/education",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Tips Produktivitas Digital\",\n  \"type\": \"tip\",\n  \"excerpt\": \"Langkah singkat belajar konsisten.\",\n  \"content\": \"Catat aktivitas harian, baca sumber tepercaya, dan evaluasi progres.\",\n  \"status\": \"published\",\n  \"estimated_minutes\": 4\n}"
+        }
+      }
+    },
+    {
+      "name": "Analytics - Statistics",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/statistics"
+      }
+    },
+    {
+      "name": "Analytics - Impact",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/impact"
+      }
+    },
+    {
+      "name": "Leaderboard",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{base_url}}/leaderboard"
+      }
+    },
+    {
+      "name": "API Key - Generate",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/api-keys",
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Postman Key\"\n}" }
+      }
+    },
+    {
+      "name": "API Key - Validate",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-API-Key", "value": "{{api_key}}" }],
+        "url": "{{base_url}}/key/validate"
+      }
     }
   ]
 }
