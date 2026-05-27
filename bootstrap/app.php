@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'api.key' => \App\Http\Middleware\ApiKeyMiddleware::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'basic.auth' => \App\Http\Middleware\BasicAuthMiddleware::class,
+            'activity.log' => \App\Http\Middleware\ActivityLogMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

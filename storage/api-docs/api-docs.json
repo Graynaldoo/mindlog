@@ -1,0 +1,636 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "MindLog EduSmart API",
+        "description": "API jurnal, artikel edukasi, kategori pembelajaran, literasi digital, dan statistik dampak penggunaan.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Local server"
+        }
+    ],
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register user baru",
+                "operationId": "e6f1dc5a11c7bb7f1c52f8e0fcc1c717",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Warga Belajar"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@mindlog.test"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrasi berhasil"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login dan mendapatkan JWT",
+                "operationId": "a25fec2f68a342b0e0dc6b9efe386110",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "admin@mindlog.test"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout JWT",
+                "operationId": "83fa731ed4cbba3b55531f84ae9a3688",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Profil user login",
+                "operationId": "368ec480c4882e19141603c934addbb6",
+                "responses": {
+                    "200": {
+                        "description": "Profil user"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/journals": {
+            "get": {
+                "tags": [
+                    "Journal"
+                ],
+                "summary": "Daftar jurnal user",
+                "operationId": "347a41d8c1578d26030b1a04ec57efbc",
+                "responses": {
+                    "200": {
+                        "description": "Daftar jurnal"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Journal"
+                ],
+                "summary": "Tambah jurnal",
+                "operationId": "d3046a04d3bf5abf27e89d4818d17663",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "mood_id",
+                                    "title",
+                                    "content",
+                                    "journal_date"
+                                ],
+                                "properties": {
+                                    "mood_id": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Belajar Literasi Digital"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Saya membaca artikel keamanan digital."
+                                    },
+                                    "journal_date": {
+                                        "type": "string",
+                                        "example": "2026-05-27"
+                                    },
+                                    "is_private": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Jurnal dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/journals/{id}": {
+            "get": {
+                "tags": [
+                    "Journal"
+                ],
+                "summary": "Detail jurnal",
+                "operationId": "fe83fd859f3ff2324c870a66be64f244",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail jurnal"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Journal"
+                ],
+                "summary": "Update jurnal",
+                "operationId": "60c56dda98eaa0562e87eda0bb100b08",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jurnal diperbarui"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Journal"
+                ],
+                "summary": "Hapus jurnal",
+                "operationId": "d2f5daabee040ca8f7dd35a273a5facd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jurnal dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/articles": {
+            "get": {
+                "tags": [
+                    "Article"
+                ],
+                "summary": "Daftar artikel edukasi",
+                "operationId": "6b652428a8f6cd5e76a72f87ac3f4fef",
+                "responses": {
+                    "200": {
+                        "description": "Daftar artikel"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Article"
+                ],
+                "summary": "Tambah artikel",
+                "operationId": "e36aa39beac01787d5b8c1205fff0c56",
+                "responses": {
+                    "201": {
+                        "description": "Artikel dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/articles/{id}": {
+            "get": {
+                "tags": [
+                    "Article"
+                ],
+                "summary": "Detail artikel",
+                "operationId": "f2c625732a17d292eb91616f710ab1b4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail artikel"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Article"
+                ],
+                "summary": "Update artikel",
+                "operationId": "33a2664cc20b03f1da606370c38da62d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artikel diperbarui"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Article"
+                ],
+                "summary": "Hapus artikel",
+                "operationId": "6d43ed275f6183ad941de872470df32d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artikel dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/categories": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Daftar kategori",
+                "operationId": "238b5498371fcf58e8dee7d2a4361b35",
+                "responses": {
+                    "200": {
+                        "description": "Daftar kategori"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Tambah kategori",
+                "operationId": "5b6659630d8d1ae5d2db0be23e0c96e6",
+                "responses": {
+                    "201": {
+                        "description": "Kategori dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/categories/{id}": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Detail kategori",
+                "operationId": "00d2d83fd078545d527c2eabec4e4cdf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail kategori"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Update kategori",
+                "operationId": "2b3c83fe3318ec9da7cf3a7880ba148e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Kategori diperbarui"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Hapus kategori",
+                "operationId": "5f32c3902fadddc06b0791c709eed2eb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Kategori dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/statistics": {
+            "get": {
+                "tags": [
+                    "Statistics"
+                ],
+                "summary": "Statistik pengguna",
+                "operationId": "61b5c739e5289d40818e5a779d289fe5",
+                "responses": {
+                    "200": {
+                        "description": "Statistik pengguna"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/basic/statistics": {
+            "get": {
+                "tags": [
+                    "Authorization"
+                ],
+                "summary": "Contoh Basic Auth",
+                "operationId": "b72dad6c33c2e47d6ffab33abfcba4ab",
+                "responses": {
+                    "200": {
+                        "description": "Statistik dengan Basic Auth"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/key/articles": {
+            "get": {
+                "tags": [
+                    "Authorization"
+                ],
+                "summary": "Contoh API Key",
+                "operationId": "4dcffa2d8c1d7011275f13ecfccadcff",
+                "responses": {
+                    "200": {
+                        "description": "Artikel dengan API Key"
+                    }
+                },
+                "security": [
+                    {
+                        "apiKeyAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "basicAuth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "apiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-Key"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Journal",
+            "description": "Journal"
+        },
+        {
+            "name": "Article",
+            "description": "Article"
+        },
+        {
+            "name": "Category",
+            "description": "Category"
+        },
+        {
+            "name": "Statistics",
+            "description": "Statistics"
+        },
+        {
+            "name": "Authorization",
+            "description": "Authorization"
+        }
+    ]
+}

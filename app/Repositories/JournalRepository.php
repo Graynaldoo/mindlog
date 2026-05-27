@@ -2,10 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\JournalRepositoryInterface;
 use App\Models\Journal;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 use Carbon\Carbon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class JournalRepository implements JournalRepositoryInterface
 {
@@ -13,7 +14,7 @@ class JournalRepository implements JournalRepositoryInterface
     {
         return Journal::with('mood')
             ->where('user_id', $userId)
-            ->orderBy('journal_date', 'desc')
+            ->orderByDesc('journal_date')
             ->paginate($perPage);
     }
 
@@ -30,6 +31,7 @@ class JournalRepository implements JournalRepositoryInterface
     public function update(Journal $journal, array $data): Journal
     {
         $journal->update($data);
+
         return $journal->fresh('mood');
     }
 
@@ -38,9 +40,6 @@ class JournalRepository implements JournalRepositoryInterface
         return $journal->delete();
     }
 
-    /**
-     * Ambil mood 7 hari terakhir untuk grafik
-     */
     public function getWeeklyMoodStats(int $userId): Collection
     {
         return Journal::with('mood')
@@ -49,13 +48,10 @@ class JournalRepository implements JournalRepositoryInterface
                 Carbon::now()->subDays(6)->startOfDay(),
                 Carbon::now()->endOfDay(),
             ])
-            ->orderBy('journal_date', 'asc')
+            ->orderBy('journal_date')
             ->get();
     }
 
-    /**
-     * Statistik bulan ini: total jurnal, rata-rata mood score
-     */
     public function getMonthlyStats(int $userId): array
     {
         $journals = Journal::with('mood')
@@ -63,18 +59,19 @@ class JournalRepository implements JournalRepositoryInterface
             ->thisMonth()
             ->get();
 
-        $totalJournals  = $journals->count();
-        $avgMoodScore   = $journals->avg(fn($j) => $j->mood->score ?? 0);
-        $moodDistrib    = $journals->groupBy('mood_id')
-            ->map(fn($group) => [
-                'mood'  => $group->first()->mood,
+        $totalJournals = $journals->count();
+        $avgMoodScore = $journals->avg(fn (Journal $journal) => $journal->mood->score ?? 0);
+        $moodDistribution = $journals->groupBy('mood_id')
+            ->map(fn ($group) => [
+                'mood' => $group->first()->mood,
                 'count' => $group->count(),
-            ])->values();
+            ])
+            ->values();
 
         return [
-            'total_journals'  => $totalJournals,
-            'avg_mood_score'  => round($avgMoodScore, 1),
-            'mood_distribution' => $moodDistrib,
+            'total_journals' => $totalJournals,
+            'avg_mood_score' => round($avgMoodScore, 1),
+            'mood_distribution' => $moodDistribution,
         ];
     }
 

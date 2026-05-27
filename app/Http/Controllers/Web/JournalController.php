@@ -3,116 +3,118 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Repositories\JournalRepository;
-use App\Repositories\StreakRepository;
-use App\Models\Mood;
+use App\Interfaces\JournalRepositoryInterface;
+use App\Interfaces\StatisticsRepositoryInterface;
 use App\Models\Journal;
+use App\Models\Mood;
+use App\Repositories\StreakRepository;
+use Illuminate\Http\Request;
 
 class JournalController extends Controller
 {
     public function __construct(
-        private JournalRepository $journalRepo,
-        private StreakRepository  $streakRepo,
+        private JournalRepositoryInterface $journalRepo,
+        private StreakRepository $streakRepo,
+        private StatisticsRepositoryInterface $statisticsRepo,
     ) {}
 
     public function index()
     {
-        $journals = $this->journalRepo->getAllByUser(auth()->id(), 9);
-        return view('journal.index', compact('journals'));
+        return view('journal.index', [
+            'journals' => $this->journalRepo->getAllByUser(auth()->id(), 9),
+        ]);
     }
 
     public function create()
     {
-        $moods = Mood::all();
-        return view('journal.create', compact('moods'));
+        return view('journal.create', ['moods' => Mood::all()]);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'mood_id'      => 'required|exists:moods,id',
-            'title'        => 'required|string|max:255',
-            'content'      => 'required|string',
+            'mood_id' => 'required|exists:moods,id',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
             'journal_date' => 'required|date',
-            'is_private'   => 'boolean',
+            'is_private' => 'boolean',
         ]);
 
-        $data['user_id']   = auth()->id();
-        $data['is_private'] = $request->has('is_private');
+        $data['user_id'] = auth()->id();
+        $data['is_private'] = $request->boolean('is_private', true);
 
         $this->journalRepo->create($data);
         $this->streakRepo->updateStreak(auth()->id());
+        $this->statisticsRepo->recordJournal(auth()->id());
 
-        return redirect()->route('journal.index')
-            ->with('success', 'Jurnal berhasil disimpan! 🎉');
+        return redirect()->route('journal.index')->with('success', 'Jurnal berhasil disimpan.');
     }
 
     public function show(Journal $journal)
     {
-        abort_if($journal->user_id !== auth()->id(), 403);
+        $this->authorize('view', $journal);
+
         return view('journal.show', compact('journal'));
     }
 
     public function edit(Journal $journal)
     {
-        abort_if($journal->user_id !== auth()->id(), 403);
-        $moods = Mood::all();
-        return view('journal.edit', compact('journal', 'moods'));
+        $this->authorize('update', $journal);
+
+        return view('journal.edit', [
+            'journal' => $journal,
+            'moods' => Mood::all(),
+        ]);
     }
 
     public function update(Request $request, Journal $journal)
     {
-        abort_if($journal->user_id !== auth()->id(), 403);
+        $this->authorize('update', $journal);
 
         $data = $request->validate([
-            'mood_id'      => 'required|exists:moods,id',
-            'title'        => 'required|string|max:255',
-            'content'      => 'required|string',
+            'mood_id' => 'required|exists:moods,id',
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
             'journal_date' => 'required|date',
         ]);
 
-        $data['is_private'] = $request->has('is_private');
+        $data['is_private'] = $request->boolean('is_private');
         $this->journalRepo->update($journal, $data);
 
-        return redirect()->route('journal.show', $journal)
-            ->with('success', 'Jurnal berhasil diperbarui!');
+        return redirect()->route('journal.show', $journal)->with('success', 'Jurnal berhasil diperbarui.');
     }
 
     public function setMood(Request $request)
     {
-        $request->validate([
-            'mood_id' => 'required|exists:moods,id',
-        ]);
+        $request->validate(['mood_id' => 'required|exists:moods,id']);
 
         $userId = auth()->id();
         $todayJournal = $this->journalRepo->getTodayJournal($userId);
 
         if ($todayJournal) {
-            $this->journalRepo->update($todayJournal, [
-                'mood_id' => $request->mood_id
-            ]);
+            $this->journalRepo->update($todayJournal, ['mood_id' => $request->mood_id]);
         } else {
+            $mood = Mood::findOrFail($request->mood_id);
             $this->journalRepo->create([
                 'user_id' => $userId,
-                'mood_id' => $request->mood_id,
+                'mood_id' => $mood->id,
                 'title' => 'Mood Hari Ini',
-                'content' => 'Saya merasa ' . Mood::find($request->mood_id)->name . ' hari ini.',
+                'content' => 'Saya merasa ' . $mood->name . ' hari ini.',
                 'journal_date' => today(),
                 'is_private' => true,
             ]);
             $this->streakRepo->updateStreak($userId);
+            $this->statisticsRepo->recordJournal($userId);
         }
 
-        return redirect()->back()->with('success', 'Mood hari ini berhasil diperbarui! ✨');
+        return redirect()->back()->with('success', 'Mood hari ini berhasil diperbarui.');
     }
 
     public function destroy(Journal $journal)
     {
-        abort_if($journal->user_id !== auth()->id(), 403);
+        $this->authorize('delete', $journal);
         $this->journalRepo->delete($journal);
 
-        return redirect()->route('journal.index')
-            ->with('success', 'Jurnal berhasil dihapus.');
+        return redirect()->route('journal.index')->with('success', 'Jurnal berhasil dihapus.');
     }
 }

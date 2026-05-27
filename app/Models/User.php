@@ -3,16 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'role_id',
         'name',
         'email',
         'password',
@@ -32,7 +36,6 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
-    // ── JWT ──────────────────────────────────────────────────────
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -40,23 +43,55 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims(): array
     {
-        return [];
+        return [
+            'role' => $this->role?->name,
+        ];
     }
 
-    // ── Generate API Key ─────────────────────────────────────────
     public static function generateApiKey(): string
     {
         return 'ml_' . Str::random(40);
     }
 
-    // ── Relasi ───────────────────────────────────────────────────
-    public function journals()
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function journals(): HasMany
     {
         return $this->hasMany(Journal::class);
     }
 
-    public function streak()
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id');
+    }
+
+    public function statistics(): HasMany
+    {
+        return $this->hasMany(Statistic::class);
+    }
+
+    public function activityLogs(): HasMany
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
+    public function streak(): HasOne
     {
         return $this->hasOne(Streak::class);
+    }
+
+    public function hasRole(string|array $roles): bool
+    {
+        return in_array($this->role?->name, (array) $roles, true);
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->role?->permissions()
+            ->where('name', $permission)
+            ->exists() ?? false;
     }
 }

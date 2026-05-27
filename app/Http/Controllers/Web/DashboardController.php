@@ -3,63 +3,38 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\JournalRepository;
+use App\Interfaces\ArticleRepositoryInterface;
+use App\Interfaces\JournalRepositoryInterface;
+use App\Interfaces\StatisticsRepositoryInterface;
+use App\Models\Category;
+use App\Models\Mood;
 use App\Repositories\StreakRepository;
-use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
     public function __construct(
-        private JournalRepository $journalRepo,
-        private StreakRepository  $streakRepo,
+        private JournalRepositoryInterface $journalRepo,
+        private StreakRepository $streakRepo,
+        private ArticleRepositoryInterface $articleRepo,
+        private StatisticsRepositoryInterface $statisticsRepo,
     ) {}
 
     public function index()
     {
-        $userId  = auth()->id();
+        $userId = auth()->id();
 
-        $streak        = $this->streakRepo->getByUser($userId);
-        $todayJournal  = $this->journalRepo->getTodayJournal($userId);
-        $weeklyMoods   = $this->journalRepo->getWeeklyMoodStats($userId);
-        $monthlyStats  = $this->journalRepo->getMonthlyStats($userId);
-        $recentJournals = $this->journalRepo->getAllByUser($userId, 5);
-        
-        $moods = \App\Models\Mood::all();
-        $todayMood = $todayJournal ? $todayJournal->mood : null;
-
-        // Quote motivasi dari public API
-        $quote = $this->getMotivationalQuote();
-
-        return view('dashboard', compact(
-            'streak',
-            'todayJournal',
-            'weeklyMoods',
-            'monthlyStats',
-            'recentJournals',
-            'quote',
-            'moods',
-            'todayMood',
-        ));
-    }
-
-    private function getMotivationalQuote(): array
-    {
-        try {
-            $response = Http::timeout(3)->get('https://zenquotes.io/api/today');
-            if ($response->ok()) {
-                $data = $response->json()[0];
-                return ['text' => $data['q'], 'author' => $data['a']];
-            }
-        } catch (\Exception $e) {
-            // Fallback kalau API down
-        }
-
-        $fallbacks = [
-            ['text' => 'Setiap hari adalah kesempatan baru untuk menjadi lebih baik.', 'author' => 'MindLog'],
-            ['text' => 'Menuliskan perasaan adalah langkah pertama menuju kesehatan mental yang baik.', 'author' => 'MindLog'],
-            ['text' => 'Konsistensi kecil setiap hari menghasilkan perubahan besar.', 'author' => 'MindLog'],
-        ];
-
-        return $fallbacks[array_rand($fallbacks)];
+        return view('dashboard', [
+            'streak' => $this->streakRepo->getByUser($userId),
+            'todayJournal' => $this->journalRepo->getTodayJournal($userId),
+            'weeklyMoods' => $this->journalRepo->getWeeklyMoodStats($userId),
+            'monthlyStats' => $this->journalRepo->getMonthlyStats($userId),
+            'recentJournals' => $this->journalRepo->getAllByUser($userId, 5),
+            'moods' => Mood::all(),
+            'todayMood' => $this->journalRepo->getTodayJournal($userId)?->mood,
+            'latestArticles' => $this->articleRepo->latestPublished(4),
+            'categories' => Category::withCount('articles')->where('is_active', true)->latest()->limit(6)->get(),
+            'userStats' => $this->statisticsRepo->userSummary($userId),
+            'impactStats' => $this->statisticsRepo->impactDashboard(),
+        ]);
     }
 }
