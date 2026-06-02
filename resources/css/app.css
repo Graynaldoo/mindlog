@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════
    MindLog EduSmart — Premium Design System

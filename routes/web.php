@@ -9,7 +9,9 @@ use App\Http\Controllers\Web\JournalController;
 use App\Http\Controllers\Web\StatisticsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('dashboard'));
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::middleware(['auth', 'verified', 'activity.log'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
