@@ -12,6 +12,8 @@ interface ArticleRepositoryInterface
 
     public function published(int $perPage = 10): LengthAwarePaginator;
 
+    public function publishedByCategory(int $categoryId, int $perPage = 9): LengthAwarePaginator;
+
     public function latestPublished(int $limit = 5): Collection;
 
     public function find(int $id): ?Article;

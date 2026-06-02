@@ -37,4 +37,11 @@ Route::middleware(['auth', 'verified', 'activity.log'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/logout-success', function () {
+    if (!session()->has('logout_name')) {
+        return redirect()->route('login');
+    }
+    return view('auth.logout-success');
+})->name('logout.success');
+
 require __DIR__ . '/auth.php';

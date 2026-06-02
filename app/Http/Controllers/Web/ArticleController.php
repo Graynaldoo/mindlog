@@ -18,10 +18,27 @@ class ArticleController extends Controller
         private StatisticsRepositoryInterface $statistics,
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
+        $categorySlug    = $request->query('category');
+        $allCategories   = $this->categories->allActive();
+        $activeCategory  = $categorySlug
+            ? $allCategories->firstWhere('slug', $categorySlug)
+            : null;
+
+        if ($activeCategory) {
+            $articles = $this->articles->publishedByCategory($activeCategory->id, 9);
+            $featured = $articles->first();
+        } else {
+            $articles = $this->articles->published(9);
+            $featured = $articles->first();
+        }
+
         return view('articles.index', [
-            'articles' => $this->articles->published(9),
+            'articles'       => $articles,
+            'featured'       => $featured,
+            'categories'     => $allCategories,
+            'activeCategory' => $activeCategory,
         ]);
     }
 

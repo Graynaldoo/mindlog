@@ -18,10 +18,23 @@ class JournalController extends Controller
         private StatisticsRepositoryInterface $statisticsRepo,
     ) {}
 
-    public function index()
+    public function index(\App\Interfaces\ArticleRepositoryInterface $articleRepo)
     {
+        $userId = auth()->id();
+        
+        $journalDays = \App\Models\Journal::where('user_id', $userId)
+            ->whereMonth('journal_date', now()->month)
+            ->whereYear('journal_date', now()->year)
+            ->pluck('journal_date')
+            ->map(fn($date) => \Carbon\Carbon::parse($date)->day)
+            ->unique()
+            ->toArray();
+
         return view('journal.index', [
-            'journals' => $this->journalRepo->getAllByUser(auth()->id(), 9),
+            'journals' => $this->journalRepo->getAllByUser($userId, 9),
+            'streak' => $this->streakRepo->getByUser($userId),
+            'journalDays' => $journalDays,
+            'featuredArticle' => $articleRepo->latestPublished(1)->first(),
         ]);
     }
 

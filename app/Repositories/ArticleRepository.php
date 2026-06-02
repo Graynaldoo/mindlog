@@ -25,6 +25,15 @@ class ArticleRepository implements ArticleRepositoryInterface
             ->paginate($perPage);
     }
 
+    public function publishedByCategory(int $categoryId, int $perPage = 9): LengthAwarePaginator
+    {
+        return Article::with('category', 'author')
+            ->published()
+            ->where('category_id', $categoryId)
+            ->latest('published_at')
+            ->paginate($perPage);
+    }
+
     public function latestPublished(int $limit = 5): Collection
     {
         return Article::with('category', 'author')

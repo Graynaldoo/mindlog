@@ -1,32 +1,48 @@
 @extends('layouts.app')
-
-@section('title', ($category->exists ? 'Edit' : 'Tambah') . ' Kategori - MindLog EduSmart')
+@php $isEdit = isset($category) && $category->exists; @endphp
+@section('title', $isEdit ? 'Edit Kategori' : 'Tambah Kategori')
 
 @section('content')
-<form method="POST" action="{{ $category->exists ? route('categories.update', $category) : route('categories.store') }}" class="space-y-5 rounded-lg border border-slate-200 bg-white p-6 card-shadow">
-    @csrf
-    @if($category->exists)
-        @method('PUT')
-    @endif
-
-    <div>
-        <h1 class="text-2xl font-extrabold">{{ $category->exists ? 'Edit Kategori' : 'Tambah Kategori Pembelajaran' }}</h1>
-        <p class="mt-1 text-sm font-medium text-slate-600">Gunakan nama yang jelas seperti Literasi Digital atau Kebiasaan Belajar.</p>
+<div class="max-w-3xl mx-auto animate-fade-up">
+    {{-- Back & Header Navigation --}}
+    <div class="mb-8">
+        <a href="{{ route('categories.index') }}"
+           class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-indigo-600 transition-colors mb-4">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
+            </svg>
+            Batal & Kembali
+        </a>
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ $isEdit ? 'Edit Kategori' : 'Kategori Baru' }}</h1>
     </div>
 
-    <x-form-input name="name" label="Nama Kategori" :value="$category->name" required />
-    <x-form-input name="sdg_focus" label="Fokus SDGs" :value="$category->sdg_focus" placeholder="SDG 4 - Quality Education" />
+    <form method="POST" action="{{ $isEdit ? route('categories.update', $category) : route('categories.store') }}" class="card p-6 md:p-8 space-y-6">
+        @csrf
+        @if($isEdit) @method('PUT') @endif
 
-    <label class="block">
-        <span class="text-sm font-bold text-slate-700">Deskripsi</span>
-        <textarea name="description" rows="4" class="mt-2 w-full rounded-lg border-slate-300 text-sm focus:border-emerald-500 focus:ring-emerald-500">{{ old('description', $category->description) }}</textarea>
-    </label>
+        <div>
+            <label for="name" class="input-label">Nama Kategori <span class="text-rose-500">*</span></label>
+            <input type="text" id="name" name="name" class="input" value="{{ old('name', $category->name ?? '') }}" required placeholder="Contoh: Pemrograman Web">
+            @error('name')<p class="mt-2 text-xs font-bold text-rose-500">{{ $message }}</p>@enderror
+        </div>
 
-    <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
-        <input type="checkbox" name="is_active" value="1" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" @checked(old('is_active', $category->is_active ?? true))>
-        Aktif
-    </label>
+        <div>
+            <label for="description" class="input-label">Deskripsi <span class="text-rose-500">*</span></label>
+            <textarea id="description" name="description" class="input h-32 resize-none" required placeholder="Jelaskan fokus materi pada kategori ini...">{{ old('description', $category->description ?? '') }}</textarea>
+            @error('description')<p class="mt-2 text-xs font-bold text-rose-500">{{ $message }}</p>@enderror
+        </div>
 
-    <button class="rounded-lg bg-emerald-600 px-5 py-3 text-sm font-extrabold text-white hover:bg-emerald-700">Simpan Kategori</button>
-</form>
+        <div>
+            <label for="sdg_focus" class="input-label">Fokus SDGs <span class="text-rose-500">*</span></label>
+            <input type="text" id="sdg_focus" name="sdg_focus" class="input" value="{{ old('sdg_focus', $category->sdg_focus ?? '') }}" required placeholder="Contoh: SDG 4 - Quality Education">
+            @error('sdg_focus')<p class="mt-2 text-xs font-bold text-rose-500">{{ $message }}</p>@enderror
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-end">
+            <button type="submit" class="btn btn-primary px-8">
+                {{ $isEdit ? 'Simpan Perubahan' : 'Buat Kategori' }}
+            </button>
+        </div>
+    </form>
+</div>
 @endsection

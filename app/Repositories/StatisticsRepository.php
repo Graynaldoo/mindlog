@@ -100,9 +100,9 @@ class StatisticsRepository implements StatisticsRepositoryInterface
             'report' => "Dalam 30 hari aktivitas pengguna meningkat {$growth}%",
             'category_reads' => Article::query()
                 ->join('categories', 'articles.category_id', '=', 'categories.id')
-                ->select('categories.name', DB::raw('SUM(articles.read_count) as reads'))
+                ->select('categories.name', DB::raw('SUM(articles.read_count) as total_reads'))
                 ->groupBy('categories.name')
-                ->orderByDesc('reads')
+                ->orderByDesc('total_reads')
                 ->limit(6)
                 ->get(),
         ];
